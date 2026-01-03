@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+dist
+.git
+.gitignore
+.env
+.env.local
+*.md
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.png
+.vscode
+.idea
+coverage
+.nyc_output
