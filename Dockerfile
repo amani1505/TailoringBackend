@@ -57,7 +57,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN mkdir -p uploads
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3009
 
 # Set environment to production
 ENV NODE_ENV=production
