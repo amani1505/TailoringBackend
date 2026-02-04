@@ -18,11 +18,41 @@ const execAsync = promisify(exec);
 export class MeasurementService {
   private readonly uploadDir = path.join(process.cwd(), 'uploads');
   private readonly pythonScript = path.join(process.cwd(), 'scripts', 'body_measurement.py');
-  // Support both Docker (/app/) and local development paths
-  private readonly pythonPath = process.env.PYTHON_PATH ||
-    (process.cwd().startsWith('/app')
-      ? '/app/venv/bin/python3'
-      : path.join(process.cwd(), 'venv', 'bin', 'python3'));
+  // Auto-detect Python path for different environments:
+  // 1. Use PYTHON_PATH env var if set
+  // 2. Docker production: /opt/venv/bin/python3 (from Dockerfile)
+  // 3. Docker legacy: /app/venv/bin/python3
+  // 4. Local development: ./venv/bin/python3
+  private readonly pythonPath = this.resolvePythonPath();
+
+  private resolvePythonPath(): string {
+    // Use environment variable if explicitly set
+    if (process.env.PYTHON_PATH && process.env.PYTHON_PATH.trim()) {
+      return process.env.PYTHON_PATH.trim();
+    }
+
+    // Check common paths in order of preference
+    const possiblePaths = [
+      '/opt/venv/bin/python3',  // Docker production (from your Dockerfile)
+      '/app/venv/bin/python3',  // Docker legacy
+      path.join(process.cwd(), 'venv', 'bin', 'python3'),  // Local development
+    ];
+
+    // Try to find the first existing path
+    const fs = require('fs');
+    for (const pythonPath of possiblePaths) {
+      try {
+        if (fs.existsSync(pythonPath)) {
+          return pythonPath;
+        }
+      } catch (error) {
+        // Continue to next path
+      }
+    }
+
+    // Fallback to system python3 if no venv found
+    return 'python3';
+  }
 
   constructor(
     @InjectRepository(Measurement)
