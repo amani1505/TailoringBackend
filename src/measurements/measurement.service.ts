@@ -18,7 +18,11 @@ const execAsync = promisify(exec);
 export class MeasurementService {
   private readonly uploadDir = path.join(process.cwd(), 'uploads');
   private readonly pythonScript = path.join(process.cwd(), 'scripts', 'body_measurement.py');
-  private readonly pythonPath = path.join(process.cwd(), 'venv', 'bin', 'python3');
+  // Support both Docker (/app/) and local development paths
+  private readonly pythonPath = process.env.PYTHON_PATH ||
+    (process.cwd().startsWith('/app')
+      ? '/app/venv/bin/python3'
+      : path.join(process.cwd(), 'venv', 'bin', 'python3'));
 
   constructor(
     @InjectRepository(Measurement)
