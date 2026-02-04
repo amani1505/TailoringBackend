@@ -30,6 +30,11 @@ RUN apt-get update && \
     libxrender-dev \
     libgomp1 \
     libglib2.0-dev \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libxrender1 \
+    libxext6 \
+    libfontconfig1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
