@@ -19,7 +19,7 @@ RUN npm run build
 FROM node:18-alpine
 
 # Install Python and required packages
-RUN apk add --no-cache python3 py3-pip
+RUN apk add --no-cache python3 py3-pip py3-virtualenv
 
 # Create app directory
 WORKDIR /app
@@ -34,8 +34,13 @@ RUN npm ci --only=production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/scripts ./scripts
 
-# Install Python dependencies
-RUN pip3 install --no-cache-dir mediapipe opencv-python-headless numpy pillow
+# Create Python virtual environment and install dependencies
+RUN python3 -m venv /opt/venv && \
+    . /opt/venv/bin/activate && \
+    pip install --no-cache-dir mediapipe opencv-python-headless numpy pillow
+
+# Add virtual environment to PATH
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Create uploads directory
 RUN mkdir -p uploads
